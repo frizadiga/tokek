@@ -31,6 +31,12 @@ int get_terminal_width() {
 #endif
 }
 
+// @fn: print header
+void print_header() {
+	printf("Tokek: Token Generation Simulator\n");
+	printf("---------------------------------\n\n");
+}
+
 // @fn: display a progress bar
 void display_progress_bar(int current, int total, int width) {
 	int progress_width = (int)((float)current / total * width);
@@ -47,29 +53,26 @@ void display_progress_bar(int current, int total, int width) {
 }
 
 // @fn: display sample generated tokens
-void display_generated_tokens(int count, int max_display) {
+void display_generated_tokens(int count) {
 	const char *sample_text =
 	    "This is a fallback sample text for token generation. "
 	    "It will be used if the actual sample text fails to load. "
 	    "The purpose of this text is to provide a backup solution for the token generation simulation. ";
 
 	int sample_length = strlen(sample_text);
-	int display_count = count < max_display ? count : max_display;
 
 	printf("\nGenerated Tokens (%d tokens):\n", count);
-	printf("+%s+\n", "------------------------------------------------------------------");
+	printf("\n---\n");
 
-	int chars_to_display = display_count * 5; // Roughly 5 chars per token
+	int chars_to_display = count * 5; // Roughly 5 chars per token
 	for (int i = 0; i < chars_to_display; i += 80) {
 		int chunk_size = i + 80 < chars_to_display ? 80 : chars_to_display - i;
-		printf("| ");
 		for (int j = 0; j < chunk_size; j++) {
 			printf("%c", sample_text[(i + j) % sample_length]);
 		}
-		printf(" |\n");
 	}
 
-	printf("+%s+\n", "------------------------------------------------------------------");
+	printf("\n---\n");
 }
 
 // @fn: simulate token generation
@@ -88,9 +91,7 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 
 	while (generated_tokens < total_tokens) {
 		clear_screen();
-
-		printf("Token Generation Simulator\n");
-		printf("=========================\n\n");
+		print_header();
 
 		printf("Tokens per second: %d\n", tokens_per_second);
 		printf("Total tokens to generate: %d\n\n", total_tokens);
@@ -99,10 +100,9 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 		display_progress_bar(generated_tokens, total_tokens, progress_bar_width);
 		printf("\n");
 
-		display_generated_tokens(generated_tokens, 100);
+		display_generated_tokens(generated_tokens);
 
-		printf("\nGeneration Time\n");
-		printf("---------------\n");
+		printf("\nGeneration Time:\n");
 		time_t current_time = time(NULL);
 		int elapsed_seconds = difftime(current_time, start_time);
 		printf("Elapsed: %.3f seconds\n", (float)elapsed_seconds);
@@ -121,8 +121,7 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 
 	// Final update
 	clear_screen();
-	printf("Token Generation Simulator\n");
-	printf("=========================\n\n");
+	print_header();
 
 	printf("Tokens per second: %d\n\n", tokens_per_second);
 
@@ -130,10 +129,9 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 	display_progress_bar(generated_tokens, total_tokens, progress_bar_width);
 	printf("\n");
 
-	display_generated_tokens(generated_tokens, 100);
+	display_generated_tokens(generated_tokens);
 
-	printf("\nGeneration Time\n");
-	printf("---------------\n");
+	printf("\nGeneration Time:\n");
 	time_t current_time = time(NULL);
 	float elapsed_seconds = difftime(current_time, start_time);
 	printf("Elapsed: %.3f seconds\n", elapsed_seconds);
@@ -146,8 +144,7 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 
 int main() {
 	clear_screen();
-	printf("Tokek: Token Generation Simulator\n");
-	printf("=========================\n\n");
+	print_header();
 
 	// Get tokens per second from environment or user input
 	int tokens_per_second = 0;
