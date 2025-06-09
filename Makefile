@@ -1,6 +1,6 @@
 CC = clang
 CFLAGS = -Wall -Wextra -Werror -Wpedantic -std=c2x
-SRCS = ./src/main.c
+SRCS = ./src/*.c
 
 all: program
 
