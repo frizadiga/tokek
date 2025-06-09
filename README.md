@@ -12,7 +12,7 @@ Tokek is a simple token generation simulator built in C. This program simulates 
 
 ### Prerequisites
 
-- C compiler (e.g., `clang` or `gcc`). clang is recommended for slightly performance.
+- C compiler (e.g., `clang` or `gcc`). clang is recommended for slightly better compilation performance.
 
 ### Installation
 
