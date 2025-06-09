@@ -6,4 +6,11 @@ TabWidth: 4
 BreakBeforeBraces: Attach
 AllowShortFunctionsOnASingleLine: Empty
 ColumnLimit: 120
+SortIncludes: CaseSensitive
+IncludeIsMainRegex: '$^'  # Empty regex - no header is considered "main"
+IncludeCategories:
+  - Regex: '^<.*>$'
+    Priority: 1
+  - Regex: '^".*"$'
+    Priority: 2
 ...
