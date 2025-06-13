@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "core.h"
 #include "input.h"
 #include "signal.h"
+#include "simulation.h"
 #include "tui.h"
 
 int main() {
 	clear_screen();
-	print_header();
+	render_header();
 
 	setup_signal_handlers();
 
