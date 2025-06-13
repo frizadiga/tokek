@@ -9,11 +9,28 @@
 #endif
 #include "tui.h"
 
+// static cache for token display
+static char *token_display_cache = NULL;
+static int cache_size = 0;
+static int chunk_size = 80; // default chunk size for display
+
 void clear_screen() {
 #ifdef _WIN32
-	system("cls");
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	DWORD count;
+	DWORD cellCount;
+	COORD homeCoords = {0, 0};
+
+	if (GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+		cellCount = csbi.dwSize.X * csbi.dwSize.Y;
+		FillConsoleOutputCharacter(hConsole, ' ', cellCount, homeCoords, &count);
+		FillConsoleOutputAttribute(hConsole, csbi.wAttributes, cellCount, homeCoords, &count);
+		SetConsoleCursorPosition(hConsole, homeCoords);
+	}
 #else
-	system("clear");
+	printf("\033[2J\033[H");
+	fflush(stdout);
 #endif
 }
 
@@ -36,16 +53,13 @@ void print_header() {
 
 void display_progress_bar(int current, int total, int width) {
 	int progress_width = (int)((float)current / total * width);
-	printf("[");
+	int percentage = (int)((float)current / total * 100);
 
+	printf("[");
 	for (int i = 0; i < width; i++) {
-		if (i < progress_width) {
-			printf("=");
-		} else {
-			printf(" ");
-		}
+		printf("%c", (i < progress_width) ? '=' : ' ');
 	}
-	printf("] %d%%", (int)((float)current / total * 100));
+	printf("] %d%%", percentage);
 }
 
 void display_generated_tokens(int count) {
@@ -55,18 +69,35 @@ void display_generated_tokens(int count) {
 	    "The purpose of this text is to provide a backup solution for the token generation simulation. ";
 
 	int sample_length = strlen(sample_text);
+	int chars_needed = count * 5;
+
+	// only regenerate cache if we need more characters
+	if (chars_needed > cache_size) {
+		cache_size = chars_needed + 400; // Allocate extra to avoid frequent reallocs
+		token_display_cache = realloc(token_display_cache, cache_size + 1);
+
+		for (int i = 0; i < cache_size; i++) {
+			token_display_cache[i] = sample_text[i % sample_length];
+		}
+		token_display_cache[cache_size] = '\0';
+	}
 
 	printf("\nGenerated Tokens (%d tokens):\n", count);
 	printf("\n---\n");
 
-	int chars_to_display = count * 5;
-	for (int i = 0; i < chars_to_display; i += 80) {
-		int chunk_size = i + 80 < chars_to_display ? 80 : chars_to_display - i;
-		for (int j = 0; j < chunk_size; j++) {
-			printf("%c", sample_text[(i + j) % sample_length]);
-		}
+	// print in chunks of chunk_size characters
+	for (int i = 0; i < chars_needed; i += chunk_size) {
+		int current_chunk_size = (i + chunk_size < chars_needed) ? chunk_size : chars_needed - i;
+		printf("%.*s", current_chunk_size, token_display_cache + i);
 	}
 
 	printf("\n---\n");
 }
 
+void cleanup_display_cache() {
+	if (token_display_cache) {
+		free(token_display_cache);
+		token_display_cache = NULL;
+		cache_size = 0;
+	}
+}

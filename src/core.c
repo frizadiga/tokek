@@ -12,8 +12,14 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 	}
 
 	float sleep_time = 1.0 / tokens_per_second;
-	int terminal_width = get_terminal_width();
-	int progress_bar_width = terminal_width > 60 ? 40 : terminal_width - 20;
+
+	// cache terminal width - only calculate once
+	static int terminal_width = 0;
+	static int progress_bar_width = 0;
+	if (terminal_width == 0) {
+		terminal_width = get_terminal_width();
+		progress_bar_width = terminal_width > 60 ? 40 : terminal_width - 20;
+	}
 
 	time_t start_time = time(NULL);
 	int generated_tokens = 0;
@@ -38,8 +44,9 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 
 		float expected_time = (float)total_tokens / tokens_per_second;
 		printf("Expected: %.3f seconds\n", expected_time);
-
 		printf("\nNote: Elapsed time may differ from expected time due to system performance limitations.\n");
+
+		fflush(stdout); // ensure output is displayed immediately (especially important for TUI refresh rate)
 
 		generated_tokens++;
 		if (generated_tokens < total_tokens) {
@@ -47,6 +54,7 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 		}
 	}
 
+	// final display
 	clear_screen();
 	print_header();
 
@@ -68,4 +76,3 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 
 	printf("\nSimulation complete!\n");
 }
-

@@ -1,10 +1,11 @@
-.PHONY: all dev release
+.PHONY: all dev clean release debug build format
 
 CC = clang
 CFLAGS = -Wall -Wextra -Werror -Wpedantic -std=c2x
 CFLAGS_DEBUG = -g -O0
 CFLAGS_RELEASE = -O2 -DNDEBUG
-SRCS = ./src/*.c
+DEBUGGER = lldb
+SRCS = $(wildcard ./src/*.c)
 BIN_NAME = tokek
 
 all: dev
@@ -12,12 +13,17 @@ all: dev
 dev: build
 	./$(BIN_NAME)
 
-release:
-	$(CC) $(CFLAGS) $(SRCS) -o ./$(BIN_NAME)
-
-debug:
-	lldb ./$(BIN_NAME)
-
 build:
 	$(CC) $(CFLAGS) $(CFLAGS_DEBUG) $(SRCS) -o ./$(BIN_NAME)
 
+release:
+	$(CC) $(CFLAGS) $(CFLAGS_RELEASE) $(SRCS) -o ./$(BIN_NAME)
+
+debug: build
+	$(DEBUGGER) ./$(BIN_NAME)
+
+clean:
+	rm -rf ./$(BIN_NAME) ./src/*.o *.dSYM
+
+format:
+	clang-format -i $(SRCS) $(wildcard ./src/*.h)
