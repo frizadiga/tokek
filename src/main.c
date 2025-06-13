@@ -9,15 +9,17 @@ int main() {
 	clear_screen();
 	render_header();
 
+	// Initialize display cache early
+	init_display_cache();
 	setup_signal_handlers();
 
 	int total_tokens = get_total_tokens();
 	int tokens_per_second = get_tokens_per_second();
 
-	// simulation process
+	// Run simulation
 	simulate_generation(tokens_per_second, total_tokens);
 
-	// @NOTE: to future me - ensure cleanup just before exit
+	// Cleanup
 	cleanup_display_cache();
 
 	return 0;
