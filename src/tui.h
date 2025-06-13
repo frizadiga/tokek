@@ -8,3 +8,4 @@ void display_progress_bar(int current, int total, int width);
 void display_generated_tokens(int count);
 
 #endif
+

@@ -1,13 +1,14 @@
+.PHONY: all dev release
+
 CC = clang
 CFLAGS = -Wall -Wextra -Werror -Wpedantic -std=c2x
 SRCS = ./src/*.c
+BIN_NAME = tokek
 
-all: program
-
-program:
-	$(CC) $(SRCS) -o ./tokek
-	# $(CC) $(CFLAGS) $(SRCS) -o ./tokek
+all: dev
 
 dev:
-	$(CC) $(SRCS) -o ./tokek && ./tokek
-	# $(CC) $(CFLAGS) $(SRCS) -o ./tokek && ./tokek
+	$(CC) $(CFLAGS) $(SRCS) -o ./tokek && ./$(BIN_NAME)
+
+release:
+	$(CC) $(CFLAGS) $(SRCS) -o ./$(BIN_NAME)
