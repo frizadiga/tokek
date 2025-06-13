@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,6 +11,8 @@
 // static cache for token display
 static char *token_display_cache = NULL;
 static int cache_size = 0;
+static char *output_buffer = NULL;
+static int output_buffer_size = 0;
 
 void render_generated_tokens(int count) {
 	int sample_length = strlen(SAMPLE_TEXT);
@@ -26,16 +29,44 @@ void render_generated_tokens(int count) {
 		token_display_cache[cache_size] = '\0';
 	}
 
-	printf("\nGenerated Tokens (%d tokens):\n", count);
-	render_bar_term_width();
+	// Pre-calculate output size and allocate buffer
+	int terminal_width = get_terminal_width();
+	int header_size = 50;                                                 // approximate size for header text
+	int bars_size = terminal_width * 2 + 4;                               // two bars plus newlines
+	int total_output_size = header_size + bars_size + chars_needed + 100; // extra buffer
 
-	// print in chunks of DEFAULT_CHUNK_SIZE chars
-	for (int i = 0; i < chars_needed; i += CHUNK_SIZE) {
-		int current_chunk_size = (i + CHUNK_SIZE < chars_needed) ? CHUNK_SIZE : chars_needed - i;
-		printf("%.*s", current_chunk_size, token_display_cache + i);
+	if (output_buffer_size < total_output_size) {
+		output_buffer = realloc(output_buffer, total_output_size);
+		output_buffer_size = total_output_size;
 	}
 
-	render_bar_term_width();
+	// Build entire output in buffer first
+	int pos = 0;
+	pos += sprintf(output_buffer + pos, "\nGenerated Tokens (%d tokens):\n", count);
+
+	// Add top bar
+	pos += sprintf(output_buffer + pos, "\n");
+	for (int i = 0; i < terminal_width; i++) {
+		output_buffer[pos++] = '-';
+	}
+	pos += sprintf(output_buffer + pos, "\n");
+
+	// Add token content
+	int chunk_end = (chars_needed < cache_size) ? chars_needed : cache_size;
+	memcpy(output_buffer + pos, token_display_cache, chunk_end);
+	pos += chunk_end;
+
+	// Add bottom bar
+	pos += sprintf(output_buffer + pos, "\n");
+	for (int i = 0; i < terminal_width; i++) {
+		output_buffer[pos++] = '-';
+	}
+	pos += sprintf(output_buffer + pos, "\n");
+
+	output_buffer[pos] = '\0';
+
+	// Single printf call for entire token display
+	printf("%s", output_buffer);
 }
 
 void simulate_generation(int tokens_per_second, int total_tokens) {
@@ -46,20 +77,25 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 
 	float sleep_time = 1.0 / tokens_per_second;
 
-	// cache terminal width - only calculate once
-	static int terminal_width = 0;
-	static int progress_bar_width = 0;
-	static int non_loader_char = 17;
-	if (terminal_width == 0) {
-		terminal_width = get_terminal_width();
-		progress_bar_width = terminal_width - non_loader_char;
-	}
+	// Initialize terminal width cache
+	get_terminal_width();
+	int progress_bar_width = get_progress_bar_width();
 
 	time_t start_time = time(NULL);
 	int generated_tokens = 0;
 
+	// Use move_cursor_home instead of clear_screen for better performance
+	bool first_render = true;
+
 	while (generated_tokens < total_tokens) {
-		clear_screen();
+		if (first_render) {
+			clear_screen();
+			first_render = false;
+		} else {
+			move_cursor_home();
+			clear_from_cursor();
+		}
+
 		render_header();
 
 		printf("Tokens per second: %d\n", tokens_per_second);
@@ -80,7 +116,7 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 		printf("Expected: %.3f seconds\n", expected_time);
 		printf("\nNote: Elapsed time may differ from expected time due to system performance limitations.\n");
 
-		fflush(stdout); // ensure output is displayed immediately (especially important for TUI refresh rate)
+		fflush(stdout);
 
 		generated_tokens++;
 		if (generated_tokens < total_tokens) {
@@ -88,8 +124,9 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 		}
 	}
 
-	// final display (still frame)
-	clear_screen();
+	// Final display
+	move_cursor_home();
+	clear_from_cursor();
 	render_header();
 
 	printf("Tokens per second: %d\n\n", tokens_per_second);
