@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "const.h"
 
 int get_tokens_per_second() {
 	int tokens_per_second = 0;
@@ -12,11 +13,9 @@ int get_tokens_per_second() {
 		scanf("%d", &tokens_per_second);
 	}
 
-	int def_tokens_per_second = 10; // default value
-
 	if (tokens_per_second <= 0) {
-		printf("Invalid input. Using default value: %d tokens per second.\n", def_tokens_per_second);
-		tokens_per_second = def_tokens_per_second;
+		printf("Invalid input. Using default value: %d tokens per second.\n", TOKENS_PER_SECOND);
+		tokens_per_second = TOKENS_PER_SECOND;
 	} else {
 		printf("Tokens per second set to: %d\n", tokens_per_second);
 	}
@@ -35,11 +34,9 @@ int get_total_tokens() {
 		scanf("%d", &total_tokens);
 	}
 
-	int def_total_tokens = 100; // default value
-
 	if (total_tokens <= 0) {
-		printf("Invalid input. Using default value: %d total tokens.\n", def_total_tokens);
-		total_tokens = def_total_tokens;
+		printf("Invalid input. Using default value: %d total tokens.\n", TOTAL_TOKENS);
+		total_tokens = TOTAL_TOKENS;
 	} else {
 		printf("Total tokens set to: %d\n", total_tokens);
 	}

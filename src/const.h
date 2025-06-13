@@ -2,7 +2,6 @@
 #define CONST_H
 
 // shared constants
-#define CHUNK_SIZE 80
 #define TOKENS_PER_SECOND 10
 #define TOTAL_TOKENS 100
 
