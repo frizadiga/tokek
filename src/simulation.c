@@ -117,7 +117,8 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 	clear_from_cursor();
 	render_header();
 
-	printf("Tokens per second: %d\n\n", tokens_per_second);
+	printf("Tokens per second: %d\n", tokens_per_second);
+	printf("Total tokens to generate: %d\n\n", total_tokens);
 
 	render_progress_bar(generated_tokens, total_tokens, progress_bar_width, progress_buffer);
 	printf("Progress: %s\n", progress_buffer);
