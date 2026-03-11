@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -108,7 +109,11 @@ void simulate_generation(int tokens_per_second, int total_tokens) {
 
 		generated_tokens++;
 		if (generated_tokens < total_tokens) {
-			usleep(sleep_time * 1000000);
+			struct timespec ts = {
+				.tv_sec = (time_t)sleep_time,
+				.tv_nsec = (long)((sleep_time - (time_t)sleep_time) * 1000000000L)
+			};
+			nanosleep(&ts, NULL);
 		}
 	}
 
