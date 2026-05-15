@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "input.h"
 #include "signal.h"
 #include "simulation.h"
@@ -13,8 +11,8 @@ int main() {
 	init_display_cache();
 	setup_signal_handlers();
 
-	int total_tokens = get_total_tokens();
 	int tokens_per_second = get_tokens_per_second();
+	int total_tokens = get_total_tokens();
 
 	// Run simulation
 	simulate_generation(tokens_per_second, total_tokens);
